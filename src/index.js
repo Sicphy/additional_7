@@ -4,6 +4,7 @@ module.exports = function solveSudoku(matrix) {
     var k = 0;
     var stack = [];
     var matrixStack = [];
+    var flag;
 
     do {
         fl = false;
@@ -43,8 +44,9 @@ module.exports = function solveSudoku(matrix) {
         first:
             for (var i = 0; i < 9; i++) {
                 for (var j = 0; j < 9; j++) {
-                    if (Array.isArray(matrix[i][j])) {
-                        if (emptyCheck(matrix)) {
+                    if (Array.isArray(matrix[i][j]) || sameCheck(matrix)) {
+                        flag = true;
+                        if (emptyCheck(matrix) || sameCheck(matrix)) {
                             do {
                                 matrix = matrixStack.pop();
                                 k = stack.pop();
@@ -52,7 +54,10 @@ module.exports = function solveSudoku(matrix) {
                                 i = stack.pop();
                             } while (k === matrix[i][j].length - 1);
                             k++;
+                            flag = false;
                         }
+                        if(flag)
+                            k = 0;
                         var tempMatrix = [];
                         tempMatrix = copy(tempMatrix,matrix);
                         matrix[i][j] = matrix[i][j][k];
@@ -69,6 +74,34 @@ module.exports = function solveSudoku(matrix) {
     } while (fl);
 
     return matrix;
+}
+
+function sameCheck(matrix) {
+    for (let k = 0; k < 9; k++) {
+        for (let p = 0; p < 9;p++) {
+            if(!Array.isArray(matrix[k][p]))
+                for(let kp = p+1; kp < 9; kp++) {
+                    if(!Array.isArray(matrix[k][kp])) {
+                        if (matrix[k][p] === matrix[k][kp])
+                            return true;
+                    }
+                }
+        }
+    }
+
+    for (let k = 0; k < 9; k++) {
+        for (let p = 0; p < 9;p++) {
+            if(!Array.isArray(matrix[p][k]))
+                for(let kp = p+1; kp < 9; kp++) {
+                    if(!Array.isArray(matrix[kp][k])) {
+                        if (matrix[p][k] === matrix[kp][k])
+                            return true;
+                    }
+                }
+        }
+    }
+
+    return false;
 }
 
 function copy(tempMatrix, matrix) {
